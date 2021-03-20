@@ -10,7 +10,7 @@ In this file compilation process is briefly explained and analysis of resulting 
 
 # Compilation process
 
-Compilation process is handled using [Makefile](Makefile) and `make` utility. Source code is written in C; ARM architecture allows for pure C implementation of startup file, including all exception handlers. C code is compiled to object file (*src/main.c* to *build/main.o*). Linker `ld` then takes all object files as input and links final ELF file according to [linker script](ld/stm32f030x8.ld). However, ELF file can not be directly flashed to MCU (as it contains ELF header, debug information and other components unknown to the MCU). Therefore `objcopy` utility (or more precisely `arm-none-eabi-objcopy`) is used to transform ELF file to .bin file. This file is then flashed to MCU using SWD/JTAG programmer.
+Compilation process is handled using [Makefile](../Makefile) and `make` utility. Source code is written in C; ARM architecture allows for pure C implementation of startup file, including all exception handlers. C code is compiled to object file (*src/main.c* to *build/main.o*). Linker `ld` then takes all object files as input and links final ELF file according to [linker script](../ld/stm32f030x8.ld). However, ELF file can not be directly flashed to MCU (as it contains ELF header, debug information and other components unknown to the MCU). Therefore `objcopy` utility (or more precisely `arm-none-eabi-objcopy`) is used to transform ELF file to .bin file. This file is then flashed to MCU using SWD/JTAG programmer.
 
 Following sections gives analysis of ELF and bin files.
 
@@ -50,7 +50,7 @@ Starting with *nm* (which is a bit less descriptive):
 08000000 T stack_initial_value
 ```
 
-First column contains symbol value (corresponding to address where given function/data item is located). Address is in MCU address space (the actual address MCU will use, not offset in elf file). This is the address space MCU uses when application is executed, meaning 0x20000000 points to start of RAM, 0x08000000 points to start of flash. More information can be found in [linker script explanation](docs/linker_script_explanation.md).
+First column contains symbol value (corresponding to address where given function/data item is located). Address is in MCU address space (the actual address MCU will use, not offset in elf file). This is the address space MCU uses when application is executed, meaning 0x20000000 points to start of RAM, 0x08000000 points to start of flash. More information can be found in [linker script explanation](linker_script_explanation.md).
 
 Second column shows symbol type. *T* stands for symbol in text section (that's the section executable code is located). More information can be found in `man nm`.
 
@@ -58,12 +58,12 @@ Third column is the symbol name. This corresponds to name of the C function, int
 
 In this case, symbols have following meaning:
 
-* `stack_initial_value` corresponds to first dword (32-bits, first 4 B) of flash memory (address 0x08000000). This is where ARM Cortex-M processor expects initial value for MSP (master stack pointer). Name of this symbol and value assignment is defined in [startup\_stm32f030x.c](src/startup_stm32f030x.c). However actual value (`_estack`, end of stack) is calculated in [linker script](ld/stm32f030x8.ld) as end (highest address) of RAM (as stack grows to lower addresses with each `push` instruction)
-* InterruptVectors symbol corresponds to start of interrupt vector table. Table itself has data type defined in [interrupt\_vectors.h](include/interrupt_vectors.h) as `InterruptVectors_t`. Actual variable `InterruptVectors` is initialized in [startup\_stm32f030x.c](src/startup_stm32f030x.c). This is just a bunch of pointers to exception/interrupt handlers (including `Reset`). As most of exception handlers are not defined, they point to zero address (probably poor practice, better would be to point to catch-all exception with infinite loop or breakpoint)
-* `HardFault`, `NMI` (non-maskable interrupt) and `Reset` are actual exception/interrupt service routines (in in ARM terminology, *interrupt* is a subset of *exception*). They are implemented as C function in [startup\_stm32f030x.c](src/startup_stm32f030x.c). Addresses in first column are actual places in memory where these functions are located (their first instruction, to be exact).
+* `stack_initial_value` corresponds to first dword (32-bits, first 4 B) of flash memory (address 0x08000000). This is where ARM Cortex-M processor expects initial value for MSP (master stack pointer). Name of this symbol and value assignment is defined in [startup\_stm32f030x.c](../src/startup_stm32f030x.c). However actual value (`_estack`, end of stack) is calculated in [linker script](../ld/stm32f030x8.ld) as end (highest address) of RAM (as stack grows to lower addresses with each `push` instruction)
+* InterruptVectors symbol corresponds to start of interrupt vector table. Table itself has data type defined in [interrupt\_vectors.h](../include/interrupt_vectors.h) as `InterruptVectors_t`. Actual variable `InterruptVectors` is initialized in [startup\_stm32f030x.c](../src/startup_stm32f030x.c). This is just a bunch of pointers to exception/interrupt handlers (including `Reset`). As most of exception handlers are not defined, they point to zero address (probably poor practice, better would be to point to catch-all exception with infinite loop or breakpoint)
+* `HardFault`, `NMI` (non-maskable interrupt) and `Reset` are actual exception/interrupt service routines (in in ARM terminology, *interrupt* is a subset of *exception*). They are implemented as C function in [startup\_stm32f030x.c](../src/startup_stm32f030x.c). Addresses in first column are actual places in memory where these functions are located (their first instruction, to be exact).
 * `_ebss` is end of bss section (section in RAM for uninitialized variables, which are zero-filled in `Reset` handler)
 * `_sbss` is start of bss section, therefore `_ebss`-`_sbss` gives size of bss section
-* `_edata` is end of data section, where static and initialized variables are located. The catch here is that data section has two different addresses (LMA and VMA), see [linker script explanation](docs/linker_script_explanation.md). Short version is that since initialized variables have some value, they have to be stored in flash (LMA address). On runtime, they have to be copied to RAM (VMA address) - copying itself is done in `Reset` handler. After data has been copied to RAM, application (usually) only works with VMA address.
+* `_edata` is end of data section, where static and initialized variables are located. The catch here is that data section has two different addresses (LMA and VMA), see [linker script explanation](linker_script_explanation.md). Short version is that since initialized variables have some value, they have to be stored in flash (LMA address). On runtime, they have to be copied to RAM (VMA address) - copying itself is done in `Reset` handler. After data has been copied to RAM, application (usually) only works with VMA address.
 * `_sdata` is the start of data section *in RAM* (VMA address)
 * `_estack` is the highest address of RAM (end of RAM), used as initial value for stack pointer
 * `_etext` is end of text section (where executable code is stored). Start of data section (*in flash memory*, LMA address) also starts at this address. Note that this is silently assumed - you could probably break this with incorrectly written linker script
@@ -137,7 +137,7 @@ SYMBOL TABLE:
 
 Here we can see more sections, including debug. These are not included in final binary (*bin* file). Fifth column denotes length of the function/data item (we can for example see that `stack\_initial\_value` is 4 bytes long, as expected.
 
-# Binary file dump
+# BIN file dump
 
 ```
 > hexdump -C build/stm32f0_baremetal.bin
@@ -162,7 +162,7 @@ ARM Cortex-M expects initial stack pointer value to be stored in first 4 bytes o
 
 ## Vector table
 
-Following 47\*4 B = 188 B belong to vector table. Each vector is 4 B long and points to exception handler for corresponding exception. C type definition for vector table can be found in [interrupt\_vectors.h](include/interrupt_vectors.h). Initialization of the table can be found in [startup\_stm32f030x.c](src/startup_stm32f030x.c). Only first three interrupts are implemented: Reset, NMI and HardFault. Note that more robust implementation should weak link all unused exceptions to some default handler (with infinite loop) to catch all exceptions. Should some non-implemented exception come, having address of 0x00000000 would probably crash the system.
+Following 47\*4 B = 188 B belong to vector table. Each vector is 4 B long and points to exception handler for corresponding exception. C type definition for vector table can be found in [interrupt\_vectors.h](../include/interrupt_vectors.h). Initialization of the table can be found in [startup\_stm32f030x.c](../src/startup_stm32f030x.c). Only first three interrupts are implemented: Reset, NMI and HardFault. Note that more robust implementation should weak link all unused exceptions to some default handler (with infinite loop) to catch all exceptions. Should some non-implemented exception come, having address of 0x00000000 would probably crash the system.
 
 ### Reset handler
 
