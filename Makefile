@@ -8,31 +8,32 @@ GDB=arm-none-eabi-gdb
 MCU_SPEC = cortex-m0
 
 # Compiler flags
+# Note that often following arguments are often used for ARM Cortex-M MCUs:
+#  --specs=nosys.specs
+#    Equivalent to -lnosys, defines that system calls should
+#    be implemented as stubs that return error.
+#
+#    Spec files contains specs-strings, which controls
+#    what subprocesses gcc should invoke and what parameters
+#    to pass to them.
+#    
+#  --nostdlib
+#    Do not use standard system startup files or libraries
+#
+# However, in this case they are not needed and have no effect on the final binary,
+# therefore they are omitted.
 INCLUDE = -I ./include
 CFLAGS = \
 	  -c \
 	  -mcpu=$(MCU_SPEC) \
-	  # Thumb mode (T32 instruction set) \
 	  -mthumb \
 	  -Wall \
-	  # do not optimize \
 	  -O0 \
-	  # default debug information; g0 for none \
-	  -g \
-	  # stdlib may not exist and program start may not be at main \
-	  -ffreestanding \
-	  # place each function to its own section \
-	  -ffunction-sections \
-	  # place each data item to its own section \
-	  -fdata-sections \
-	  # last two arguments are useful if linker uses --gc-sections,
-	  # which "garbage collects" unused symbols; this may lead
-	  # to smaller executables
+	  -g
 
 # Linker flags
 LSCRIPT = ./ld/stm32f030x8.ld
 LFLAGS += \
-	  -specs=nosys.specs \
 	  --print-memory-usage \
 	  -T$(LSCRIPT)
 
@@ -46,7 +47,7 @@ C_SRC += \
 OBJS = $(addprefix $(BUILD_DIR)/, $(C_SRC:.c=.o))
 
 .PHONY: all clean flash debug
-.PRECIOUS: $(BUILD_DIR)/%.elf
+.PRECIOUS: $(BUILD_DIR)/%.elf $(BUILD_DIR)/%.o
 all: $(BUILD_DIR)/$(TARGET).bin
 
 # create build folder
