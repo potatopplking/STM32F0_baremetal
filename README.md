@@ -79,6 +79,18 @@ You will need to:
 * if architecture other than Cortex-M0 is used, modify MCU\_SPEC variable in [Makefile](Makefile)
 * if interrupt vector table differs from the one used in STM32F030x, modify it in file [interrupt\_vectors.h](include/interrupt_vectors.h)
 
+# Documentation
+
+Folder `docs/` contains following files:
+* [binary_file_analysis.md](docs/binary_file_analysis.md): inspection of compiled ELF and BIN files
+* [linker_script_explanation.md](docs/linker_script_explanation.md): Brief explanation of linker script used in this project
+
+Hopefully these documents will help you with understanding what is happening under the hood.
+
+# Contribution
+
+Should you find any bugs/errors in code or documentation, please contact me or fork this repo, fix errors and create pull request.
+
 # License
 
 You are free to use and modify this project in any legal way you want. Please don't sue me if your STM32F0x turns into heating element and starts emitting large quantities of black smoke.
