@@ -135,7 +135,7 @@ SYMBOL TABLE:
 20000000 g       .text	00000000 _edata
 ```
 
-Here we can see more sections, including debug. These are not included in final binary (*bin* file). Fifth column denotes length of the function/data item (we can for example see that `stack\_initial\_value` is 4 bytes long, as expected.
+Here we can see more sections, including debug. These are not included in final binary (*bin* file). Fifth column denotes length of the function/data item (we can for example see that `stack_initial_value` is 4 bytes long, as expected.
 
 # BIN file dump
 
