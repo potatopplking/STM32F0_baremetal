@@ -60,7 +60,6 @@ $(BUILD_DIR)/%.elf: $(OBJS)
 	$(LD) $(LFLAGS) $^ -o $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
-	echo $(CC) $(CFLAGS) $(INCLUDE) -o $@ $<
 	$(CC) $(CFLAGS) $(INCLUDE) -o $@ $<
 
 flash:
