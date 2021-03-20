@@ -75,9 +75,9 @@ Program execution should halt at breakpoint instruction (*bkpt*) located in main
 
 You will need to:
 
-* modify FLASH and RAM size in linker script
-* if architecture other than Cortex-M0 is used, modify MCU\_SPEC variable in Makefile
-* if interrupt vector table differs from the one used in STM32F030x, modify it in file interrupt\_vectors.h
+* modify FLASH and RAM size in [linker script](ld/stm32f030x8.ld)
+* if architecture other than Cortex-M0 is used, modify MCU\_SPEC variable in [Makefile](Makefile)
+* if interrupt vector table differs from the one used in STM32F030x, modify it in file [interrupt\_vectors.h](include/interrupt_vectors.h)
 
 # License
 
